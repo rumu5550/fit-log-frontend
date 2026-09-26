@@ -8,7 +8,7 @@ export default function Banner() {
         <div className="relative overflow-hidden rounded-2xl bg-[#15171D] border border-[#222630] px-6 py-10 sm:px-12 sm:py-14 lg:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7 flex flex-col items-start z-10">
-              <span className="text-[#C2F800] text-xs font-semibold uppercase tracking-wider mb-4">
+              <span className="text-[#C2F800] text-xs font-semibold uppercase mb-4">
                 WORKOUT LIBRARY
               </span>
 
@@ -23,7 +23,7 @@ export default function Banner() {
 
               <Link
                 href="#library"
-                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-lg bg-[#C2F800] text-black font-semibold text-xs uppercase tracking-wider hover:bg-[#b0e200] active:scale-[0.98] transition-all duration-200 shadow-sm"
+                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-lg bg-[#C2F800] text-black font-semibold text-xs uppercase hover:bg-[#b0e200] active:scale-[0.98] transition-all duration-200 shadow-sm"
               >
                 BROWSE WORKOUTS
               </Link>
