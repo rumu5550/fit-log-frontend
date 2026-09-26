@@ -20,6 +20,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "FitLog - Workout Library.",
   description: "FitLog is a dark, no-nonsense gym companion: pick a lift, lock it into today's plan, and watch the week's work add up.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
