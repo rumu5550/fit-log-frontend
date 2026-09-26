@@ -7,6 +7,7 @@ interface WorkoutContextType {
   planList: Workout[];
   savedList: Workout[];
   completedList: number[];
+  isLoaded: boolean;
   addToPlan: (workout: Workout) => void;
   removeFromPlan: (workoutId: number) => void;
   togglePlan: (workout: Workout) => void;
@@ -127,6 +128,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         planList,
         savedList,
         completedList,
+        isLoaded,
         addToPlan,
         removeFromPlan,
         togglePlan,

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, X, ChevronDown, Check as CheckIcon, Search } from "lucide-react";
+import { Check, X, ChevronDown, Check as CheckIcon, Search, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useWorkouts } from "@/context/WorkoutContext";
 import { Workout } from "@/types/workout";
@@ -29,6 +29,7 @@ export default function MyPlanPage() {
   const {
     planList,
     savedList,
+    isLoaded,
     removeFromPlan,
     removeFromSaved,
     toggleComplete,
@@ -290,7 +291,14 @@ export default function MyPlanPage() {
         </div>
       )}
 
-      {sortedList.length === 0 ? (
+      {!isLoaded ? (
+        <div className="rounded-2xl border border-[#222630] bg-[#15171D] py-20 px-4 text-center flex flex-col items-center justify-center">
+          <Loader2 className="w-8 h-8 text-[#C2F800] animate-spin mb-4" />
+          <p className="font-title text-xl font-bold text-white uppercase tracking-tight">
+            Loading workouts…
+          </p>
+        </div>
+      ) : sortedList.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[#222630] py-20 px-4 text-center flex flex-col items-center justify-center">
           <h2 className="font-title text-2xl font-bold text-white uppercase tracking-tight mb-2">
             NOTHING HERE YET
@@ -312,22 +320,22 @@ export default function MyPlanPage() {
             return (
               <div
                 key={item.id}
-                className="rounded-2xl bg-[#15171D] border border-[#222630] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all hover:border-[#2F3646]"
+                className="rounded-2xl bg-[#15171D] border border-[#222630] p-4 sm:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 transition-all hover:border-[#2F3646]"
               >
-                <div className="flex items-center gap-4 w-full sm:w-auto">
-                  <div className="relative w-24 sm:w-32 aspect-[16/10] rounded-lg overflow-hidden bg-[#1C1F26] shrink-0">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1 min-w-0">
+                  <div className="relative w-full sm:w-32 aspect-[21/9] sm:aspect-[16/10] rounded-xl overflow-hidden bg-[#1C1F26] shrink-0">
                     <Image
                       src={item.image}
                       alt={item.name}
                       fill
-                      sizes="128px"
+                      sizes="(max-width: 640px) 100vw, 128px"
                       className="object-cover"
                     />
                   </div>
 
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0">
                     <h3
-                      className={`font-title text-base sm:text-lg font-bold uppercase tracking-tight transition-colors ${
+                      className={`font-title text-base sm:text-lg font-bold uppercase tracking-tight transition-colors truncate ${
                         completed
                           ? "line-through text-[#6B7280]"
                           : "text-white"
@@ -335,30 +343,30 @@ export default function MyPlanPage() {
                     >
                       {item.name}
                     </h3>
-                    <p className="text-xs text-[#8F9CAE] mb-1.5">
+                    <p className="text-xs text-[#8F9CAE] mb-2 sm:mb-1.5 truncate">
                       {item.equipment}
                     </p>
-                    <div className="flex items-center gap-4 text-xs text-[#8F9CAE]">
-                      <div className="flex items-center gap-1.5">
-                        <ClockIcon className="w-3.5 h-3.5 text-[#C2F800]" />
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-[#8F9CAE]">
+                      <div className="flex items-center gap-1.5 whitespace-nowrap">
+                        <ClockIcon className="w-3.5 h-3.5 text-[#C2F800] shrink-0" />
                         <span>{item.duration} min</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <CalorieIcon className="w-3.5 h-3.5 text-[#C2F800]" />
+                      <div className="flex items-center gap-1.5 whitespace-nowrap">
+                        <CalorieIcon className="w-3.5 h-3.5 text-[#C2F800] shrink-0" />
                         <span>{item.caloriesBurned} kcal</span>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <StarIcon className="w-3.5 h-3.5 text-[#C2F800]" />
+                      <div className="flex items-center gap-1.5 whitespace-nowrap">
+                        <StarIcon className="w-3.5 h-3.5 text-[#C2F800] shrink-0" />
                         <span>{item.rating}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 justify-start md:justify-end pt-1 md:pt-0">
                   <Link
                     href={`/workouts/${item.id}`}
-                    className="px-4 py-2 rounded-full text-xs font-semibold text-white bg-[#1E232E] hover:bg-[#282F3E] border border-[#2A2F3A] transition-colors"
+                    className="px-4 py-2 rounded-full text-xs font-semibold text-white bg-[#1E232E] hover:bg-[#282F3E] border border-[#2A2F3A] transition-colors whitespace-nowrap shrink-0"
                   >
                     View Details
                   </Link>
@@ -367,13 +375,13 @@ export default function MyPlanPage() {
                     <button
                       type="button"
                       onClick={() => handleToggleComplete(item)}
-                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all active:scale-[0.98] ${
+                      className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold cursor-pointer transition-all active:scale-[0.98] whitespace-nowrap shrink-0 ${
                         completed
                           ? "bg-[#1A2508] text-[#C2F800] border border-[#2D3F0E]"
                           : "bg-[#C2F800] text-black hover:bg-[#b0e200]"
                       }`}
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      <Check className="w-3.5 h-3.5 shrink-0" />
                       <span>{completed ? "Completed" : "Mark as Done"}</span>
                     </button>
                   )}
@@ -381,7 +389,7 @@ export default function MyPlanPage() {
                   <button
                     type="button"
                     onClick={() => handleRemove(item)}
-                    className="p-2 text-[#8F9CAE] hover:text-white hover:bg-[#222630] rounded-lg cursor-pointer transition-colors"
+                    className="p-2 text-[#8F9CAE] hover:text-white hover:bg-[#222630] rounded-lg cursor-pointer transition-colors shrink-0"
                     aria-label="Remove workout"
                   >
                     <X className="w-4 h-4" />
