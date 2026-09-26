@@ -1,16 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
 import Logo from "./Logo";
+import { useWorkouts } from "@/context/WorkoutContext";
 
-interface NavbarProps {
-  planCount?: number;
-  savedCount?: number;
-}
-
-export default function Navbar({ planCount = 0, savedCount = 0 }: NavbarProps) {
+export default function Navbar() {
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { planList, savedList } = useWorkouts();
+
+  const planCount = planList.length;
+  const savedCount = savedList.length;
 
   const navLinks = [
     { name: "Workouts", href: "/" },
@@ -31,7 +34,7 @@ export default function Navbar({ planCount = 0, savedCount = 0 }: NavbarProps) {
           <Logo />
         </div>
 
-        <nav className="flex items-center gap-2">
+        <nav className="hidden md:flex items-center gap-2">
           {navLinks.map((link) => {
             const active = isLinkActive(link.href);
             return (
@@ -70,8 +73,43 @@ export default function Navbar({ planCount = 0, savedCount = 0 }: NavbarProps) {
               {savedCount}
             </span>
           </Link>
+
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            className="md:hidden p-1.5 text-[#8F9CAE] hover:text-white rounded-lg focus:outline-none"
+            aria-label="Toggle navigation menu"
+          >
+            {isMobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
+          </button>
         </div>
       </div>
+
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-[#0C0D10] border-b border-[#1C1F26] px-4 py-3 space-y-2">
+          {navLinks.map((link) => {
+            const active = isLinkActive(link.href);
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block px-4 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  active
+                    ? "bg-[#1A2508] text-[#C2F800] border border-[#2D3F0E]"
+                    : "text-[#8F9CAE] hover:text-white hover:bg-[#15171D]"
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </header>
   );
 }
