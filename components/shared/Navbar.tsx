@@ -26,13 +26,11 @@ export default function Navbar({ planCount = 0, savedCount = 0 }: NavbarProps) {
 
   return (
     <header className="w-full bg-[#0C0D10] border-b border-[#1C1F26] sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
-      
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-[60px] flex items-center justify-between">
         <div className="flex items-center">
           <Logo />
         </div>
 
-       
         <nav className="flex items-center gap-2">
           {navLinks.map((link) => {
             const active = isLinkActive(link.href);
@@ -52,9 +50,7 @@ export default function Navbar({ planCount = 0, savedCount = 0 }: NavbarProps) {
           })}
         </nav>
 
-        
         <div className="flex items-center gap-3 text-xs font-medium">
-          
           <Link
             href="/my-plan"
             className="flex items-center gap-2 text-white hover:opacity-90 transition-opacity"
@@ -65,7 +61,6 @@ export default function Navbar({ planCount = 0, savedCount = 0 }: NavbarProps) {
             </span>
           </Link>
 
-          
           <Link
             href="/my-plan"
             className="flex items-center gap-2 text-white hover:opacity-90 transition-opacity"

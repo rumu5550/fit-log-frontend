@@ -18,7 +18,7 @@ export default function Logo({ className = "", showText = true }: LogoProps) {
         priority
       />
       {showText && (
-        <span className="font-title text-[18px] font-bold tracking-wider text-white uppercase">
+        <span className="font-title text-[18px] font-semibold  text-white uppercase">
           FITLOG
         </span>
       )}
