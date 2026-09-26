@@ -64,6 +64,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   const addToPlan = (workout: Workout) => {
     setPlanList((prev) => {
       if (prev.some((item) => item.id === workout.id)) return prev;
+      if (prev.length >= 5) return prev;
       return [...prev, workout];
     });
   };
@@ -77,6 +78,9 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
       const exists = prev.some((item) => item.id === workout.id);
       if (exists) {
         return prev.filter((item) => item.id !== workout.id);
+      }
+      if (prev.length >= 5) {
+        return prev;
       }
       return [...prev, workout];
     });

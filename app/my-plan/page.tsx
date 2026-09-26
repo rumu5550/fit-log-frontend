@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, X, ChevronDown, Check as CheckIcon } from "lucide-react";
+import { Check, X, ChevronDown, Check as CheckIcon, Search } from "lucide-react";
 import toast from "react-hot-toast";
 import { useWorkouts } from "@/context/WorkoutContext";
 import { Workout } from "@/types/workout";
@@ -22,6 +22,8 @@ export default function MyPlanPage() {
   const [activeTab, setActiveTab] = useState<TabType>("plan");
   const [sortBy, setSortBy] = useState<SortOption>("duration");
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTag, setSelectedTag] = useState("ALL");
   const sortRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -52,18 +54,48 @@ export default function MyPlanPage() {
     0
   );
 
-  const sortedList = currentList.sort((a, b) => {
-    if (sortBy === "duration") {
-      return a.duration - b.duration;
-    }
-    if (sortBy === "calories") {
-      return b.caloriesBurned - a.caloriesBurned;
-    }
-    if (sortBy === "rating") {
-      return b.rating - a.rating;
-    }
-    return 0;
-  });
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    currentList.forEach((w) => {
+      w.muscleGroups?.forEach((m) => tags.add(m));
+    });
+    return ["ALL", ...Array.from(tags)];
+  }, [currentList]);
+
+  const filteredList = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return currentList.filter((item) => {
+      const matchesSearch =
+        !query ||
+        item.name.toLowerCase().includes(query) ||
+        item.equipment.toLowerCase().includes(query) ||
+        item.description.toLowerCase().includes(query) ||
+        item.muscleGroups.some((tag) => tag.toLowerCase().includes(query));
+
+      const matchesTag =
+        selectedTag === "ALL" ||
+        item.muscleGroups.some(
+          (tag) => tag.toLowerCase() === selectedTag.toLowerCase()
+        );
+
+      return matchesSearch && matchesTag;
+    });
+  }, [currentList, searchQuery, selectedTag]);
+
+  const sortedList = useMemo(() => {
+    return [...filteredList].sort((a, b) => {
+      if (sortBy === "duration") {
+        return a.duration - b.duration;
+      }
+      if (sortBy === "calories") {
+        return b.caloriesBurned - a.caloriesBurned;
+      }
+      if (sortBy === "rating") {
+        return b.rating - a.rating;
+      }
+      return 0;
+    });
+  }, [filteredList, sortBy]);
 
   const selectedSortLabel =
     sortOptions.find((opt) => opt.value === sortBy)?.label || "Duration";
@@ -134,25 +166,31 @@ export default function MyPlanPage() {
         <div className="flex items-center p-1 rounded-xl bg-[#15171D] border border-[#222630]">
           <button
             type="button"
-            onClick={() => setActiveTab("plan")}
+            onClick={() => {
+              setActiveTab("plan");
+              setSelectedTag("ALL");
+            }}
             className={`px-4 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
               activeTab === "plan"
                 ? "bg-[#1E232E] text-white shadow-sm"
                 : "text-[#8F9CAE] hover:text-white"
             }`}
           >
-            Today&apos;s Plan
+            Today&apos;s Plan ({planList.length}/5)
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("saved")}
+            onClick={() => {
+              setActiveTab("saved");
+              setSelectedTag("ALL");
+            }}
             className={`px-4 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${
               activeTab === "saved"
                 ? "bg-[#1E232E] text-white shadow-sm"
                 : "text-[#8F9CAE] hover:text-white"
             }`}
           >
-            Saved
+            Saved ({savedList.length})
           </button>
         </div>
 
@@ -204,6 +242,53 @@ export default function MyPlanPage() {
           )}
         </div>
       </div>
+
+      {currentList.length > 0 && (
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-6">
+          <div className="relative flex-1 max-w-md">
+            <Search className="w-4 h-4 text-[#8F9CAE] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Search ${activeTab === "plan" ? "today's plan" : "saved lifts"} by name or tag...`}
+              className="w-full pl-10 pr-10 py-2.5 bg-[#15171D] border border-[#222630] focus:border-[#C2F800] focus:outline-none focus:ring-1 focus:ring-[#C2F800] text-xs sm:text-sm text-white placeholder-[#5A6578] rounded-xl transition-all"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#8F9CAE] hover:text-white transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {allTags.length > 2 && (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+              {allTags.map((tag) => {
+                const isSelected = selectedTag === tag;
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setSelectedTag(tag)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold uppercase whitespace-nowrap cursor-pointer transition-all duration-150 ${
+                      isSelected
+                        ? "bg-[#C2F800] text-black shadow-sm"
+                        : "bg-[#15171D] text-[#8F9CAE] border border-[#222630] hover:text-white hover:border-[#384152]"
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {sortedList.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[#222630] py-20 px-4 text-center flex flex-col items-center justify-center">

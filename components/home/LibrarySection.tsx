@@ -1,5 +1,5 @@
 import { Workout } from "@/types/workout";
-import WorkoutCard from "./WorkoutCard";
+import LibraryClient from "./LibraryClient";
 
 async function getWorkouts(): Promise<Workout[]> {
   try {
@@ -29,11 +29,7 @@ export default async function LibrarySection() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {workouts.map((workout) => (
-          <WorkoutCard key={workout.id} workout={workout} />
-        ))}
-      </div>
+      <LibraryClient initialWorkouts={workouts} />
     </section>
   );
 }

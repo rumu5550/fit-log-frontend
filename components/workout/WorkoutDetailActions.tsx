@@ -10,12 +10,20 @@ interface WorkoutDetailActionsProps {
 }
 
 export default function WorkoutDetailActions({ workout }: WorkoutDetailActionsProps) {
-  const { isInPlan, togglePlan, isSaved, toggleSave } = useWorkouts();
+  const { planList, isInPlan, togglePlan, isSaved, toggleSave } = useWorkouts();
 
   const inPlan = isInPlan(Number(workout.id));
   const saved = isSaved(Number(workout.id));
+  const isPlanFull = planList.length >= 5 && !inPlan;
 
   const handleTogglePlan = () => {
+    if (isPlanFull) {
+      toast.error("Plan is full! Maximum 5 lifts allowed for today.", {
+        id: "plan-full",
+      });
+      return;
+    }
+
     togglePlan(workout);
     if (!inPlan) {
       toast.success(`"${workout.name}" added to today's plan!`, {
@@ -46,14 +54,24 @@ export default function WorkoutDetailActions({ workout }: WorkoutDetailActionsPr
       <button
         type="button"
         onClick={handleTogglePlan}
-        className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold uppercase cursor-pointer transition-all duration-200 active:scale-[0.98] ${
-          inPlan
-            ? "bg-[#1A2508] text-[#C2F800] border border-[#2D3F0E]"
-            : "bg-[#C2F800] text-black hover:bg-[#b0e200]"
+        disabled={isPlanFull}
+        title={isPlanFull ? "Plan is full (maximum 5 lifts)" : undefined}
+        className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold uppercase transition-all duration-200 ${
+          isPlanFull
+            ? "bg-[#1E232E] text-[#6B7280] border border-[#2A2F3A] cursor-not-allowed opacity-60"
+            : inPlan
+            ? "bg-[#1A2508] text-[#C2F800] border border-[#2D3F0E] cursor-pointer active:scale-[0.98]"
+            : "bg-[#C2F800] text-black hover:bg-[#b0e200] cursor-pointer active:scale-[0.98]"
         }`}
       >
         {inPlan ? <Check className="w-4 h-4" /> : <CalendarPlus className="w-4 h-4" />}
-        <span>{inPlan ? "Added to today's plan" : "Add to today's plan"}</span>
+        <span>
+          {inPlan
+            ? "Added to today's plan"
+            : isPlanFull
+            ? "Plan Full (5/5)"
+            : "Add to today's plan"}
+        </span>
       </button>
 
       <button
